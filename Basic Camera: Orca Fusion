@@ -1,0 +1,77 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import time
+import math
+n = 0
+
+import pylablib as pll
+pll.par["devices/dlls/dcamapi"] = r"C:\Users\eugki\Downloads\Hamamatsu_DCAMSDK4_v22126552\dcamsdk4\lib\win64"
+from pylablib.devices import DCAM
+DCAM.get_cameras_number()
+cam = DCAM.DCAMCamera()
+
+def initial():
+    print("--- Initialisation ---")
+    binning = cam.get_attribute_value("BINNING")
+    print("Binning: " + str(binning))
+    exposure = cam.get_exposure()
+    print("Exposure: " + str(exposure))
+    frame_period = cam.get_frame_period()
+    print("Frame Period: " + str(frame_period))
+    print("--- Found Current State of Camera ---")
+
+    print("")
+
+    while True:
+        trigmode = input("Choose your trigger mode, i (int) or e (ext): ")
+        if trigmode == "i":
+            trigmode = "int"
+        elif trigmode == "e":
+            trigmode = "ext"
+        else:
+            print("Please put in a valid input.")
+            continue
+        break
+
+    cam.set_trigger_mode(str(trigmode))
+
+    print("")
+    global n
+    n = input("Choose the number of photos you are taking: ")
+
+    try:
+        n = int(n)
+    except Exception as e:
+        print("Error:", e)
+
+    print("")
+
+def takeoneimage():
+    try:
+        return cam.grab(nframes=1, frame_timeout=15)  # Take 1 image, with 15 sec timeout period.
+    except Exception as e:
+        print("Error:", e)
+
+def takeimages():
+    images = []
+    print("Please take your " + str(n) + " photos.")
+    for i in range(n):
+        image = takeoneimage()
+        images.append(image)
+        print("Image no. " + str(i + 1) + " has been taken!")
+        time.sleep(0.1)
+
+    fig, axes = plt.subplots(1, n, figsize=(15, 5))
+    for i, ax in enumerate(axes):
+        image_to_show = np.squeeze(images[i])  # Remove singleton dimensions
+        ax.imshow(image_to_show, cmap='gray')
+        ax.set_title(f'Image {i + 1}')
+        ax.axis('off')
+
+    plt.show()
+
+initial()
+
+takeimages()
+
+cam.close()
