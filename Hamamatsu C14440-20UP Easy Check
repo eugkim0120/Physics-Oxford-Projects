@@ -5,7 +5,7 @@ import math
 n = 0
 
 import pylablib as pll
-pll.par["devices/dlls/dcamapi"] = r"C:\Users\eugki\Downloads\Hamamatsu_DCAMSDK4_v22126552\dcamsdk4\lib\win64"
+pll.par["devices/dlls/dcamapi"] = ### r"***YOUR DCAMSDK4, lib, win64 FILE***" (Uncomment this)
 from pylablib.devices import DCAM
 DCAM.get_cameras_number()
 cam = DCAM.DCAMCamera()
